@@ -34,7 +34,7 @@ module SRTreeC
 
 	// aggregation interfaces
 	uses interface Random as Random;
-/*
+
 	uses interface PacketQueue as AggQuerySendQueue;
 	uses interface PacketQueue as AggQueryReceiveQueue;
 
@@ -57,7 +57,7 @@ module SRTreeC
 	uses interface PacketQueue as AggAvgReceiveQueue;
 
 	uses interface Timer<TMilli> as EpochTimer;
-	*/
+
 }
 implementation
 {
@@ -73,6 +73,9 @@ implementation
     uint8_t aggType=0;
     uint16_t sample=0;
     uint16_t epochCounter=0;
+	uint16_t agg_min=0xFFFF;
+	uint32_t agg_sum=0;
+	uint16_t agg_count=0;
 	//END ADDED
 	bool RoutingSendBusy = FALSE;
 
@@ -222,8 +225,8 @@ implementation
    		 dbg("SRTreeC", "#####################################\n");
    		 //ADDED
    		 //generate random aggType
-   		 aggType= (call Random.rand16() %3) +1; // 1=MIN,2=SUM,3=AVG
-
+   		 //aggType= (call Random.rand16() %3) +1; // 1=MIN,2=SUM,3=AVG
+		aggType=1;
    		 //call RoutingMsgTimer.startOneShot(TIMER_PERIOD_MILLI);
    	 }
    	 
@@ -437,7 +440,8 @@ implementation
 #endif
    		 return;
    	 }
-   	 
+	dbg("Epoch","Start epoch timer for node %d \n", TOS_NODE_ID);
+   	call EpochTimer.startPeriodicAt(EPOCH_PERIOD_MILLI - (curdepth*WINDOW_MILLI),EPOCH_PERIOD_MILLI);
    	 
    	 if(RoutingSendBusy)
    	 {
@@ -546,4 +550,167 @@ implementation
 
    	 printf("A Routing package sent... %s \n",(err==SUCCESS)?"True":"False");
 #endif
+
+	event void EpochTimer.fired(){
+		uint16_t temp;
+		epochCounter += 1;
+		message_t out;
+		error_t enqueueDone;
+		AggregationMin* am;
+		if(epochCounter == 1 ){
+			sample = (call Random.rand16() % 60) + 1; // random sample between 1 and 60
+		}else{
+			sample = sample * ((call Random.rand16() % 40) + 80)/100; // * 0.8 to 1.2
+			if(sample > 60){
+				sample = 60;
+			}
+		}
+		
+		if(aggType == AGGREGATION_TYPE_MIN){ // MIN
+			am = (AggregationMin*) call AggMinPacket.getPayload(&out, sizeof(AggregationMin));
+			if (am == NULL) {return; }
+
+			if(sample > agg_min){
+				temp = agg_min;
+			}else{
+				temp = sample;
+				agg_min = sample;
+			}
+			atomic{
+			am->minVal = temp;
+			am->epoch = epochCounter;
+			am->senderID = TOS_NODE_ID;
+			}
+			dbg("Epoch", "EpochTimer.fired(): Sending MIN aggregation message, epoch=%u, minVal=%u, sample=%u\n", am->epoch, am->minVal, sample);
+			call AggMinAMPacket.setDestination(&out, parentID);
+			call AggMinPacket.setPayloadLength(&out, sizeof(AggregationMin));
+			enqueueDone=call AggMinSendQueue.enqueue(out);
+   	 
+			if( enqueueDone==SUCCESS)
+			{
+				post sendAggMinTask();
+				dbg("Epoch","MIN aggregation message enqueued successfully in SendingQueue!!!\n");	
+			}
+		}
+		else if(aggType == AGGREGATION_TYPE_SUM){ // SUM
+			// send sum aggregation message
+		}
+		else if(aggType == AGGREGATION_TYPE_AVG){ // AVG
+			// send avg aggregation message
+		}
+
+		if (TOS_NODE_ID == 0) {
+			// root: finalize and print
+			if (aggType == AGGREGATION_TYPE_MIN) dbg("Results","AGG RESULT epoch=%u MIN=%u \n", epochCounter, agg_min);
+			else if (aggType == AGGREGATION_TYPE_SUM) dbg("Results","AGG RESULT epoch=%u SUM=%u\n", epochCounter, agg_sum);
+			else if (aggType == AGGREGATION_TYPE_AVG) { uint32_t avg = (agg_count>0)? (agg_sum/agg_count) : 0; dbg("Results","AGG RESULT epoch=%u AVG=%lu sum=%u count=%u\n", epochCounter, avg, agg_sum, agg_count); }
+		}
+		// reset aggregation variables
+		agg_min = 0xFFFF;
+		agg_sum = 0;
+		agg_count = 0
+	}
+
+	task void sendAggMinTask()
+    {
+   	 //uint8_t skip;
+   	 uint8_t mlen;
+   	 uint16_t mdest;
+   	 error_t sendDone;
+   	 message_t toSend;
+
+   	 if (call AggMinSendQueue.empty())
+   	 {
+   		 dbg("Epoch","sendAggMinTask(): Q is empty!\n");
+#ifdef PRINTFDBG_MODE   	 
+   		 printf("sendAggMinTask():Q is empty!\n");
+   		 printfflush();
+#endif
+   		 return;
+   	 }
+   	 
+   	 toSend = call AggMinSendQueue.dequeue();
+   	 
+   	 //call Leds.led2On();
+   	 //call Led2Timer.startOneShot(TIMER_LEDS_MILLI);
+   	 mlen= call RoutingPacket.payloadLength(&toSend);
+   	 mdest=call RoutingAMPacket.destination(&toSend);
+   	 if(mlen!=sizeof(AggregationMin))
+   	 {
+   		 dbg("Epoch","\t\tsendAggMinTask(): Unknown message!!!\n");
+   		 return;
+   	 }
+   	 sendDone=call RoutingAMSend.send(mdest,&toSend,mlen);
+   	 
+   	 if ( sendDone== SUCCESS)
+   	 {
+   		 dbg("Epoch","sendAggMinTask(): Send returned success!!!\n");
+
+   	 }
+   	 else
+   	 {
+   		 dbg("Epoch","send failed!!!\n");
+#ifdef PRINTFDBG_MODE
+   		 printf("sendAggMinTask(): send failed!!!\n");
+#endif
+   		 //setRoutingSendBusy(FALSE);
+   	 }
+    }
+
+	event message_t* AggMinReceive.receive( message_t * msg , void * payload, uint8_t len)
+    {
+   	 error_t enqueueDone;
+   	 message_t tmp;
+   	 uint16_t msource;
+   	 
+   	 msource =call AggMinAMPacket.source(msg);
+
+   	 dbg("Epoch", "Something received!!!  from %u  %u \n",((AggregationMin*) payload)->senderID ,  msource);
+   	 
+   	 atomic{
+   	 memcpy(&tmp,msg,sizeof(message_t));
+   	 //tmp=*(message_t*)msg;
+   	 }
+   	 enqueueDone=call AggMinReceiveQueue.enqueue(tmp);
+   	 if(enqueueDone == SUCCESS)
+   	 {
+   		 post receiveAggMinTask();
+   	 }
+   	 else
+   	 {
+   		 dbg("Epoch","AggMin enqueue failed!!! \n");
+#ifdef PRINTFDBG_MODE
+   		 printf("AggMin enqueue failed!!! \n");
+   		 printfflush();
+#endif   		 
+   	 }
+   	 dbg("Epoch", "### AggMinReceive.receive() end ##### \n");
+   	 return msg;
+    }
+
+	task void receiveAggMinTask()
+    {
+   	message_t tmp;
+   	uint8_t len;
+   	message_t msg;
+
+   	 msg= call AggMinReceiveQueue.dequeue();
+   	 
+   	 len= call AggMinPacket.payloadLength(&msg);
+   	 
+   	 dbg("Epoch","ReceiveAggMinTask(): len=%u \n",len);
+	 
+	if (len == sizeof(AggregationMin)) {
+		AggregationMin * mpkt = (AggregationMin*) (call AggMinPacket.getPayload(&msg,len));
+		if (mpkt->epoch != epochCounter) {
+			dbg("Epoch","receiveAggMinTask() from diff epoch \n");
+			return;
+		}
+		dbg("Epoch", "receiveAggMinTask():senderID= %d, minVal=%u, epoch=%u \n", mpkt->senderID, mpkt->minVal, mpkt->epoch);
+		agg_min = (mpkt->minVal < agg_min) ? mpkt->minVal : agg_min;
+	}	
+
+
+	}
+
 }
