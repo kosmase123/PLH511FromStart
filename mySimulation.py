@@ -31,7 +31,7 @@ t.addChannel("Min",f)
 t.addChannel("Results",f)
 
 
-for i in range(0,nodeCount-1):
+for i in range(0,nodeCount):
 	m=t.getNode(i)
 	m.bootAtTime(10*t.ticksPerSecond() + i)
 
