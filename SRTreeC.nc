@@ -68,7 +68,7 @@ implementation
 	message_t radioRoutingSendPkt;
 	message_t serialPkt;
 
-    uint8_t curdepth;
+    int16_t curdepth;
     int16_t parentID=-1;
     
 	//ADDED
