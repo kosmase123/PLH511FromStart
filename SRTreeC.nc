@@ -82,7 +82,6 @@ implementation
 #ifdef SERIAL_EN
 	bool serialBusy = FALSE;
 #endif
-
 	uses interface Packet as RoutingPacket;
     uses interface AMSend as RoutingAMSend;
     uses interface AMPacket as RoutingAMPacket;
@@ -99,10 +98,6 @@ implementation
    	 /////// arxikopoiisi radio kai serial
    	 call RadioControl.start();
    	 
-   	 setRoutingSendBusy(FALSE);
-#ifdef SERIAL_EN
-   	 setSerialBusy(FALSE);
-#endif
    	 roundCounter =0;
    	 
    	 if(TOS_NODE_ID==0)
@@ -335,7 +330,6 @@ implementation
    		 printf("Package sent %s \n", (err==SUCCESS)?"True":"False");
    		 printfflush();
 #endif
-   		 setSerialBusy(FALSE);
    		 
    		 //call Leds.led2Off();
    	 }
