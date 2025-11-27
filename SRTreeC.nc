@@ -81,6 +81,16 @@ implementation
 	//END ADDED
 	bool RoutingSendBusy = FALSE;
 
+	void setRoutingSendBusy(bool state) {
+		atomic { RoutingSendBusy = state; }
+		if (state == TRUE) {
+			call Leds.led0On();
+			call Led0Timer.startOneShot(TIMER_LEDS_MILLI);
+		} else {
+			// LED off is handled by the Led0Timer fired event
+		}
+	}
+
 	task void sendRoutingTask();
 	task void receiveRoutingTask();
 
@@ -399,7 +409,7 @@ implementation
    	 dbg("SRTreeC", "### RoutingReceive.receive() end ##### \n");
    	 return msg;
     }
-    
+    /*
     event message_t* SerialReceive.receive(message_t* msg , void* payload , uint8_t len)
     {
    	 // when receiving from serial port
@@ -410,7 +420,7 @@ implementation
 #endif
    	 return msg;
     }
-    
+    */
     ////////////// Tasks implementations //////////////////////////////
     
     
@@ -536,9 +546,9 @@ implementation
 		}
 	}
 
-#endif
 
 }
 #ifdef PRINTFDBG_MODE
 
    	 printf("A Routing package sent... %s \n",(err==SUCCESS)?"True":"False");
+#endif`

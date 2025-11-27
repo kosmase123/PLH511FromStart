@@ -64,7 +64,7 @@ implementation{
     SRTreeC.NotifySendQueue->NotifySendQueueC;
     SRTreeC.NotifyReceiveQueue->NotifyReceiveQueueC;
     
-}#include "SimpleRoutingTree.h"
+}
 
 configuration SRTreeAppC @safe() { }
 implementation{
