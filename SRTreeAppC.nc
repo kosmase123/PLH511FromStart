@@ -28,8 +28,8 @@ implementation{
     components new PacketQueueC(SENDER_QUEUE_SIZE) as RoutingSendQueueC;
     components new PacketQueueC(RECEIVER_QUEUE_SIZE) as RoutingReceiveQueueC;
 
-    components new PacketQueueC(AGGMIN_SENDER_QUEUE_SIZE) as AggMinSendQueueC;
-    components new PacketQueueC(AGGMIN_RECEIVER_QUEUE_SIZE) as AggMinReceiveQueueC;
+    components new PacketQueueC(SENDER_QUEUE_SIZE) as AggMinSendQueueC;
+    components new PacketQueueC(RECEIVER_QUEUE_SIZE) as AggMinReceiveQueueC;
     components new AMSenderC(AGGREGATION_TYPE_MIN) as AggMinSenderC;
     components new AMReceiverC(AGGREGATION_TYPE_MIN) as AggMinReceiverC;
     
