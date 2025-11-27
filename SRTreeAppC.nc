@@ -53,8 +53,8 @@ implementation{
 
     SRTreeC.AggMinPacket->AggMinSenderC.Packet;
     SRTreeC.AggMinAMPacket->AggMinSenderC.AMPacket;
-    SRTreeC.AggMinAMSend->AggMinSenderC.AMSend;
-    SRTreeC.AggMinReceive->AggMinReceiverC.Receive;
+    SRTreeC.AggMinAMSend->AggMinSenderC;
+    SRTreeC.AggMinReceive->AggMinReceiverC;
     SRTreeC.AggMinSendQueue->AggMinSendQueueC;
     SRTreeC.AggMinReceiveQueue->AggMinReceiveQueueC;
     SRTreeC.EpochTimer->EpochTimerC;
