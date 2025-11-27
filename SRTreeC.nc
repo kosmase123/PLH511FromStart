@@ -224,7 +224,7 @@ implementation
    		 //generate random aggType
    		 aggType= (call Random.rand16() %3) +1; // 1=MIN,2=SUM,3=AVG
 
-   		 call RoutingMsgTimer.startOneShot(TIMER_PERIOD_MILLI);
+   		 //call RoutingMsgTimer.startOneShot(TIMER_PERIOD_MILLI);
    	 }
    	 
    	 if(call RoutingSendQueue.full())
