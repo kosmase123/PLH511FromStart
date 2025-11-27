@@ -335,6 +335,7 @@ implementation
    	 {
    		 post sendRoutingTask();
    	 }
+	 setRoutingSendBusy(FALSE);
    	 //call Leds.led0Off();
     
    	 
