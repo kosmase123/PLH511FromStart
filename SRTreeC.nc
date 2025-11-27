@@ -98,11 +98,7 @@ implementation
 #ifdef SERIAL_EN
 	bool serialBusy = FALSE;
 #endif
-	uses interface Packet as RoutingPacket;
-    uses interface AMSend as RoutingAMSend;
-    uses interface AMPacket as RoutingAMPacket;
-    //ADDED - REMOVED
-	/* Notify interfaces removed: TinyAggregation doesn't use notify-parent messages */
+
 
 #ifdef SERIAL_EN
     uses interface AMSend as SerialAMSend;
