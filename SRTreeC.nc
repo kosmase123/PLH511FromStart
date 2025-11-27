@@ -649,7 +649,7 @@ implementation
    		 dbg("Epoch","\t\tsendAggMinTask(): Unknown message!!!\n");
    		 return;
    	 }
-   	 sendDone=call RoutingAMSend.send(mdest,&toSend,mlen);
+   	 sendDone=call AggMinAMSend.send(mdest,&toSend,mlen);
    	 
    	 if ( sendDone== SUCCESS)
    	 {
@@ -719,7 +719,25 @@ implementation
 		agg_min = (mpkt->minVal < agg_min) ? mpkt->minVal : agg_min;
 	}	
 
-
 	}
+
+	event void AggMinAMSend.sendDone(message_t * msg , error_t err)
+    {
+   	 dbg("Epoch", "A Min package sent... %s \n",(err==SUCCESS)?"True":"False");
+#ifdef PRINTFDBG_MODE
+   	 printf("A Min package sent... %s \n",(err==SUCCESS)?"True":"False");
+   	 printfflush();
+#endif
+   	 
+   	 dbg("Epoch" , "Package sent %s \n", (err==SUCCESS)?"True":"False");
+#ifdef PRINTFDBG_MODE
+   	 printf("Package sent %s \n", (err==SUCCESS)?"True":"False");
+   	 printfflush();
+#endif
+   	 
+   	 if(!(call AggMinSendQueue.empty()))
+   	 {
+   		 post sendAggMinTask();
+   	 }
 
 }

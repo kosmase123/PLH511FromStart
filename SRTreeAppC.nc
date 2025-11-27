@@ -27,6 +27,11 @@ implementation{
 #endif
     components new PacketQueueC(SENDER_QUEUE_SIZE) as RoutingSendQueueC;
     components new PacketQueueC(RECEIVER_QUEUE_SIZE) as RoutingReceiveQueueC;
+
+    components new PacketQueueC(AGGMIN_SENDER_QUEUE_SIZE) as AggMinSendQueueC;
+    components new PacketQueueC(AGGMIN_RECEIVER_QUEUE_SIZE) as AggMinReceiveQueueC;
+    components new AMSenderC(AGGREGATION_TYPE_MIN) as AggMinSenderC;
+    components new AMReceiverC(AGGREGATION_TYPE_MIN) as AggMinReceiverC;
     
     SRTreeC.Random->RandomC;
     SRTreeC.Boot->MainC.Boot;
@@ -43,7 +48,13 @@ implementation{
     SRTreeC.RoutingAMPacket->RoutingSenderC.AMPacket;
     SRTreeC.RoutingAMSend->RoutingSenderC.AMSend;
     SRTreeC.RoutingReceive->RoutingReceiverC.Receive;
-    
+
+    SRTreeC.AggMinPacket->AggMinSenderC.Packet;
+    SRTreeC.AggMinAMPacket->AggMinSenderC.AMPacket;
+    SRTreeC.AggMinAMSend->AggMinSenderC.AMSend;
+    SRTreeC.AggMinReceive->AggMinReceiverC.Receive;
+    SRTreeC.AggMinSendQueue->AggMinSendQueueC;
+    SRTreeC.AggMinReceiveQueue->AggMinReceiveQueueC;
   
 #ifdef SERIAL_EN    
     //SRTreeC.SerialReceive->SerialAMReceiverC.Receive;
