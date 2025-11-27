@@ -636,7 +636,7 @@ implementation
 	task void sendAggMinTask()
     {
    	 //uint8_t skip;
-   	 uint8_t mlen;
+   	 uint16_t mlen;
    	 uint16_t mdest;
    	 error_t sendDone;
    	 message_t toSend;
@@ -715,7 +715,7 @@ implementation
     {
 	AggregationMin * mpkt;
    	message_t tmp;
-   	uint8_t len;
+   	uint16_t len;
    	message_t msg;
 
    	 msg= call AggMinReceiveQueue.dequeue();
