@@ -616,7 +616,7 @@ implementation
 		// reset aggregation variables
 		agg_min = 0xFFFF;
 		agg_sum = 0;
-		agg_count = 0
+		agg_count = 0;
 	}
 
 	task void sendAggMinTask()
