@@ -542,7 +542,9 @@ implementation
 			parentID = call RoutingAMPacket.source(&radioRoutingRecPkt);
 			curdepth = mpkt->depth + 1;
 			aggType = mpkt->aggType;
-			if (TOS_NODE_ID != 0) call RoutingMsgTimer.startOneShot(TIMER_FAST_PERIOD);
+			if (TOS_NODE_ID != 0){ 
+				call RoutingMsgTimer.startOneShot(TIMER_FAST_PERIOD);
+			}
 		}
 	}
 
