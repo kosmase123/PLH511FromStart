@@ -41,7 +41,7 @@ module SRTreeC
 	uses interface Packet as AggMinPacket;
 	uses interface AMPacket as AggMinAMPacket;
 	uses interface AMSend as AggMinAMSend;
-	uses interface AMReceive as AggMinReceive;
+	uses interface Receive as AggMinReceive;
 	uses interface PacketQueue as AggMinSendQueue;
 	uses interface PacketQueue as AggMinReceiveQueue;
 
