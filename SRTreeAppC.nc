@@ -44,7 +44,7 @@ implementation{
     SRTreeC.RoutingAMSend->RoutingSenderC.AMSend;
     SRTreeC.RoutingReceive->RoutingReceiverC.Receive;
     
-    
+/*    
 #ifdef SERIAL_EN    
     SRTreeC.SerialReceive->SerialAMReceiverC.Receive;
     SRTreeC.SerialAMSend->SerialAMSenderC.AMSend;
@@ -52,6 +52,7 @@ implementation{
     SRTreeC.SerialPacket->SerialAMSenderC.Packet;
     SRTreeC.SerialControl->SerialActiveMessageC;
 #endif
+*/
     SRTreeC.RoutingSendQueue->RoutingSendQueueC;
     SRTreeC.RoutingReceiveQueue->RoutingReceiveQueueC;
     
