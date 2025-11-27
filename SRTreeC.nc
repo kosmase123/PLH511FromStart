@@ -75,7 +75,7 @@ implementation
 	bool serialBusy = FALSE;
 #endif
 
-    uses interface Packet as RoutingPacket;
+	uses interface Packet as RoutingPacket;
     uses interface AMSend as RoutingAMSend;
     uses interface AMPacket as RoutingAMPacket;
     //ADDED - REMOVED
@@ -347,9 +347,9 @@ implementation
    	 dbg("SRTreeC", "### RoutingReceive.receive() start ##### \n");
    	 dbg("SRTreeC", "Something received!!!  from %u  %u \n",((RoutingMsg*) payload)->senderID ,  msource);
    	 //dbg("SRTreeC", "Something received!!!\n");
-#ifdef PRINTFDBG_MODE   	 
-   	 printf("Something Received!!!, len = %u , npm=%u , rm=%u\n",len, sizeof(NotifyParentMsg), sizeof(RoutingMsg));
-   	 printfflush();
+#ifdef PRINTFDBG_MODE
+    	 printf("Something Received!!!, len = %u , rm=%u\n", len, sizeof(RoutingMsg));
+    	 printfflush();
 #endif
    	 //call Leds.led1On();
    	 //call Led1Timer.startOneShot(TIMER_LEDS_MILLI);
@@ -527,6 +527,8 @@ implementation
 			if (TOS_NODE_ID != 0) call RoutingMsgTimer.startOneShot(TIMER_FAST_PERIOD);
 		}
 	}
+
+#endif
 
 }
 #ifdef PRINTFDBG_MODE

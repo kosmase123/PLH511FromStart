@@ -49,11 +49,6 @@ typedef nx_struct RoutingMsg
 	nx_uint8_t aggType;     // ADDED
 } RoutingMsg;
 
-typedef nx_struct NotifyParentMsg
-{
-	nx_uint16_t senderID;
-	nx_uint16_t parentID;
-	nx_uint8_t depth;
-} NotifyParentMsg;
+
 
 #endif
