@@ -4,26 +4,36 @@ from TOSSIM import *
 import sys ,os
 import random
 
+if(len(sys.argv)!=3):
+	print "Usage: python mySimulation.py <topology file> <nodes count>"
+	sys.exit(1)
+
+topologyFile=sys.argv[1]
+nodeCount=int(sys.argv[2])
+
 t=Tossim([])
 f=sys.stdout #open('./logfile.txt','w')
 SIM_END_TIME= 1000 * t.ticksPerSecond()
 
 print "TicksPerSecond : ", t.ticksPerSecond(),"\n"
 
-t.addChannel("Boot",f)
-t.addChannel("RoutingMsg",f)
-t.addChannel("NotifyParentMsg",f)
-t.addChannel("Radio",f)
+#t.addChannel("Boot",f)
+#t.addChannel("RoutingMsg",f)
+#t.addChannel("NotifyParentMsg",f)
+#t.addChannel("Radio",f)
 #t.addChannel("Serial",f)
-t.addChannel("SRTreeC",f)
+#t.addChannel("SRTreeC",f)
 #t.addChannel("PacketQueueC",f)
+#t.addChannel("Epoch",f)
+t.addChannel("Results",f)
 
-for i in range(0,10):
+
+for i in range(0,nodeCount):
 	m=t.getNode(i)
 	m.bootAtTime(10*t.ticksPerSecond() + i)
 
 
-topo = open("topology.txt", "r")
+topo = open(topologyFile, "r")
 
 if topo is None:
 	print "Topology file not opened!!! \n"
