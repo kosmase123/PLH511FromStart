@@ -17,7 +17,7 @@ SIM_END_TIME= 1000 * t.ticksPerSecond()
 
 print "TicksPerSecond : ", t.ticksPerSecond(),"\n"
 
-#t.addChannel("Boot",f)
+t.addChannel("Boot",f)
 #t.addChannel("RoutingMsg",f)
 #t.addChannel("NotifyParentMsg",f)
 #t.addChannel("Radio",f)
@@ -28,7 +28,7 @@ print "TicksPerSecond : ", t.ticksPerSecond(),"\n"
 t.addChannel("Results",f)
 
 
-for i in range(0,nodeCount):
+for i in range(0,nodeCount-1):
 	m=t.getNode(i)
 	m.bootAtTime(10*t.ticksPerSecond() + i)
 
