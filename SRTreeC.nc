@@ -550,6 +550,7 @@ implementation
 			if (TOS_NODE_ID != 0){ 
 				call RoutingMsgTimer.startOneShot(TIMER_FAST_PERIOD);
 			}
+			dbg("printTopology", "NodeID %d: parentID= %d , curdepth= %d , aggType= %d \n", TOS_NODE_ID, parentID, curdepth, aggType);
 		}
 	}
 
@@ -574,7 +575,7 @@ implementation
 				sample = 60;
 			}
 		}
-		dbg("Sample","Sample generated: %u \n in Node %d", sample, TOS_NODE_ID);
+		dbg("Sample","Sample generated: %u in Node %d\n", sample, TOS_NODE_ID);
 		
 		if(aggType == AGGREGATION_TYPE_MIN){ // MIN
 			am = (AggregationMin*) call AggMinPacket.getPayload(&out, sizeof(AggregationMin));
