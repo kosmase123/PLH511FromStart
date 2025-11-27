@@ -579,6 +579,7 @@ implementation
 		dbg("Sample","Sample generated: %u in Node %d\n", sample, TOS_NODE_ID);
 		
 		if(aggType == AGGREGATION_TYPE_MIN){ // MIN
+			am = (AggregationMin*) call AggMinPacket.getPayload(&out, sizeof(AggregationMin));
 			if (am == NULL) {return; }
 
 			if(sample > agg_min){
@@ -594,7 +595,7 @@ implementation
 				am->epoch = epochCounter;
 				am->senderID = TOS_NODE_ID;
 				}
-				am = (AggregationMin*) call AggMinPacket.getPayload(&out, sizeof(AggregationMin));
+				
 				dbg("SentAggMin", "EpochTimer.fired(): Sending MIN aggregation message, epoch=%u, minVal=%u, sample=%u\n", am->epoch, am->minVal, sample);
 				/* don't send if we don't have a parent yet */
 				if (parentID == -1) {
