@@ -70,6 +70,14 @@ implementation
 	message_t radioRoutingSendPkt;
 	message_t serialPkt;
 
+    uint8_t curdepth;
+    uint16_t parentID;
+    
+	//ADDED
+    uint8_t aggType=0;
+    uint16_t sample=0;
+    uint16_t epochCounter=0;
+	//END ADDED
 	bool RoutingSendBusy = FALSE;
 #ifdef SERIAL_EN
 	bool serialBusy = FALSE;
