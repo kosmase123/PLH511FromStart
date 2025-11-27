@@ -678,7 +678,7 @@ implementation
    	 error_t enqueueDone;
    	 message_t tmp;
    	 uint16_t msource;
-   	 
+   	 dbg("ReceiveAggMin", "### AggMinReceive.receive() start ##### \n");
    	 msource =call AggMinAMPacket.source(msg);
 
     dbg("ReceiveAggMin", "AggMin received (src=%u, len=%u)\n", msource, len);
