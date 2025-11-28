@@ -724,6 +724,11 @@ implementation
    	uint16_t len;
    	message_t msg;
 
+   	if(call AggMinReceiveQueue.empty()) {
+   		dbg("ReceiveAggMin","receiveAggMinTask(): Queue is empty!\n");
+   		return;
+   	}
+   	 
    	 msg= call AggMinReceiveQueue.dequeue();
    	 
    	 len= call AggMinPacket.payloadLength(&msg);
