@@ -668,6 +668,14 @@ implementation
    		 dbg("SentAggMin","\t\tsendAggMinTask(): Unknown message!!!\n");
    		 return;
    	 }
+   	 
+   	 AggregationMin* agg = (AggregationMin*)call AggMinPacket.getPayload(&toSend, mlen);
+   	 if (agg == NULL) {
+   	 	 dbg("SentAggMin","sendAggMinTask(): getPayload returned NULL\n");
+   	 	 return;
+   	 }
+   	 
+	 dbg("SentAggMin","Min Value to send in packet min %d\n", agg->minVal);
 		 dbg("SentAggMin","sendAggMinTask(): sending to dest=%u len=%u\n", mdest, mlen);
    	 sendDone=call AggMinAMSend.send(mdest,&toSend,mlen);
    	 
@@ -737,6 +745,10 @@ implementation
 	 
 	if (len == sizeof(AggregationMin)) {
 		mpkt = (AggregationMin*) (call AggMinPacket.getPayload(&msg,len));
+		if (mpkt == NULL) {
+			dbg("ReceiveAggMin","receiveAggMinTask() getPayload returned NULL\n");
+			return;
+		}
 		if (mpkt->epoch != epochCounter) {
 			dbg("Epoch","receiveAggMinTask() from diff epoch \n");
 			return;
