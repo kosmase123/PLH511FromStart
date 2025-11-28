@@ -435,7 +435,7 @@ implementation
    	 uint8_t mlen;
    	 uint16_t mdest;
    	 error_t sendDone;
-   	 message_t toSend;
+   	 //message_t radioRoutingSendPkt;
    	 
 #ifdef PRINTFDBG_MODE
    	 printf("SendRoutingTask(): Starting....\n");
@@ -450,10 +450,8 @@ implementation
 #endif
    		 return;
    	 }
-	 if (curdepth >= 0) {
-	 	dbg("Epoch","Start epoch timer for node %d \n", TOS_NODE_ID);
-	 	call EpochTimer.startPeriodicAt(EPOCH_PERIOD_MILLI - (curdepth*WINDOW_MILLI),EPOCH_PERIOD_MILLI);
-	 }
+	dbg("Epoch","Start epoch timer for node %d \n", TOS_NODE_ID);
+   	call EpochTimer.startPeriodicAt(EPOCH_PERIOD_MILLI - (curdepth*WINDOW_MILLI),EPOCH_PERIOD_MILLI);
    	 
    	 if(RoutingSendBusy)
    	 {
@@ -465,12 +463,12 @@ implementation
    		 return;
    	 }
    	 
-   	 toSend = call RoutingSendQueue.dequeue();
+   	 radioRoutingSendPkt = call RoutingSendQueue.dequeue();
    	 
    	 //call Leds.led2On();
    	 //call Led2Timer.startOneShot(TIMER_LEDS_MILLI);
-   	 mlen= call RoutingPacket.payloadLength(&toSend);
-   	 mdest=call RoutingAMPacket.destination(&toSend);
+   	 mlen= call RoutingPacket.payloadLength(&radioRoutingSendPkt);
+   	 mdest=call RoutingAMPacket.destination(&radioRoutingSendPkt);
    	 if(mlen!=sizeof(RoutingMsg))
    	 {
    		 dbg("SRTreeC","\t\tsendRoutingTask(): Unknown message!!!\n");
@@ -480,7 +478,7 @@ implementation
 #endif
    		 return;
    	 }
-   	 sendDone=call RoutingAMSend.send(mdest,&toSend,mlen);
+   	 sendDone=call RoutingAMSend.send(mdest,&radioRoutingSendPkt,mlen);
    	 
    	 if ( sendDone== SUCCESS)
    	 {
@@ -658,6 +656,7 @@ implementation
 	mdest=call AggMinAMPacket.destination(&toSend);
  	 mlen= call AggMinPacket.payloadLength(&toSend);
 
+	 dbg("SentAggMin","Min Value to send in packet min %d\n", ((AggregationMin*)call AggMinPacket.getPayload(&toSend, mlen))->minVal);
    	 if(mlen!=sizeof(AggregationMin))
    	 {
    		 dbg("SentAggMin","\t\tsendAggMinTask(): Unknown message!!!\n");
@@ -669,8 +668,6 @@ implementation
    	 	 dbg("SentAggMin","sendAggMinTask(): getPayload returned NULL\n");
    	 	 return;
    	 }
-   	 
-	 dbg("SentAggMin","Min Value to send in packet min %d\n", agg->minVal);
    	 
 	 dbg("SentAggMin","Min Value to send in packet min %d\n", agg->minVal);
 		 dbg("SentAggMin","sendAggMinTask(): sending to dest=%u len=%u\n", mdest, mlen);
