@@ -644,6 +644,7 @@ implementation
    	 uint16_t mdest;
    	 error_t sendDone;
    	 message_t toSend;
+	 AggregationMin* agg;
 
    	 if (call AggMinSendQueue.empty())
    	 {
@@ -669,7 +670,7 @@ implementation
    		 return;
    	 }
    	 
-   	 AggregationMin* agg = (AggregationMin*)call AggMinPacket.getPayload(&toSend, mlen);
+   	  agg = (AggregationMin*)call AggMinPacket.getPayload(&toSend, mlen);
    	 if (agg == NULL) {
    	 	 dbg("SentAggMin","sendAggMinTask(): getPayload returned NULL\n");
    	 	 return;
