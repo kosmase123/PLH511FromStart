@@ -17,20 +17,33 @@ SIM_END_TIME= 100 * t.ticksPerSecond()
 
 print "TicksPerSecond : ", t.ticksPerSecond(),"\n"
 
+# Boot and Initialization channels
 t.addChannel("Boot",f)
-t.addChannel("printTopology",f)
-t.addChannel("RoutingMsg",f)
-t.addChannel("NotifyParentMsg",f)
 t.addChannel("Radio",f)
 t.addChannel("Serial",f)
-t.addChannel("SRTreeC",f)
-t.addChannel("PacketQueueC",f)
-t.addChannel("Epoch",f)
+
+# Routing channels - Main routing messages
+t.addChannel("RoutingMsg",f)
+t.addChannel("printTopology",f)
+
+# Aggregation - Sampling
 t.addChannel("Sample",f)
 t.addChannel("Min",f)
-t.addChannel("Results",f)
-t.addChannel("ReceiveAggMin",f)
+
+# Aggregation - Sending
 t.addChannel("SentAggMin",f)
+
+# Aggregation - Receiving
+t.addChannel("ReceiveAggMin",f)
+
+# Epoch management
+t.addChannel("Epoch",f)
+
+# Results
+t.addChannel("Results",f)
+
+# Queue management
+t.addChannel("PacketQueueC",f)
 
 
 for i in range(0,nodeCount):
