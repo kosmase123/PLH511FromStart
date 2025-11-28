@@ -61,10 +61,10 @@ for line in  lines:
 	str1=line.strip()
 	if str1:
 		val=int(str1)
-		for i in range(0,10):
+		for i in range(0,nodeCount):
 			t.getNode(i).addNoiseTraceReading(val)
 noiseF.close()
-for i in range(0,10):
+for i in range(0,nodeCount):
 	t.getNode(i).createNoiseModel()
 	
 ok=False
