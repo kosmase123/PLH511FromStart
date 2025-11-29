@@ -430,14 +430,13 @@ implementation
    	 uint8_t mlen;
    	 uint16_t mdest;
    	 error_t sendDone;
-   	 //message_t radioRoutingSendPkt;
+   	 message_t radioRoutingSendPkt;
    	 
 #ifdef PRINTFDBG_MODE
    	 printf("SendRoutingTask(): Starting....\n");
    	 printfflush();
 #endif
-   	 if (call RoutingSendQueue.empty())
-   	 {
+   	 if (call RoutingSendQueue.dequeue(&radioRoutingSendPkt) != SUCCESS) {
    		 dbg("SRTreeC","sendRoutingTask(): Q is empty!\n");
 #ifdef PRINTFDBG_MODE   	 
    		 printf("sendRoutingTask():Q is empty!\n");
@@ -445,6 +444,7 @@ implementation
 #endif
    		 return;
    	 }
+
 	 if (curdepth >= 0) {
 	 	uint16_t random_offset = call Random.rand16() % 500;
 	 	dbg("Epoch","Start epoch timer for node %d \n", TOS_NODE_ID);
@@ -460,8 +460,6 @@ implementation
 #endif
    		 return;
    	 }
-   	 
-   	 radioRoutingSendPkt = call RoutingSendQueue.dequeue();
    	 
    	 //call Leds.led2On();
    	 //call Led2Timer.startOneShot(TIMER_LEDS_MILLI);
@@ -517,7 +515,9 @@ implementation
    	 printf("ReceiveRoutingTask():received msg...\n");
    	 printfflush();
 #endif
-   	 radioRoutingRecPkt= call RoutingReceiveQueue.dequeue();
+   	 if (call RoutingReceiveQueue.dequeue(&radioRoutingRecPkt) != SUCCESS) {
+		 return;
+	 }
    	 
    	 len= call RoutingPacket.payloadLength(&radioRoutingRecPkt);
    	 
@@ -636,7 +636,7 @@ implementation
    	 message_t toSend;
 	 AggregationMin* agg;
 
-   	 if (call AggMinSendQueue.empty())
+   	 if (call AggMinSendQueue.dequeue(&toSend) != SUCCESS)
    	 {
    		 dbg("SentAggMin","sendAggMinTask(): Q is empty!\n");
 #ifdef PRINTFDBG_MODE   	 
@@ -645,8 +645,6 @@ implementation
 #endif
    		 return;
    	 }
-   	 
-   	 toSend = call AggMinSendQueue.dequeue();
    	 
    	 //call Leds.led2On();
    	 //call Led2Timer.startOneShot(TIMER_LEDS_MILLI);
@@ -718,12 +716,10 @@ implementation
    	uint16_t len;
    	message_t msg;
 
-   	if(call AggMinReceiveQueue.empty()) {
+   	if (call AggMinReceiveQueue.dequeue(&msg) != SUCCESS) {
    		dbg("ReceiveAggMin","receiveAggMinTask(): Queue is empty!\n");
    		return;
    	}
-   	 
-   	 msg= call AggMinReceiveQueue.dequeue();
    	 
    	 len= call AggMinPacket.payloadLength(&msg);
    	 
