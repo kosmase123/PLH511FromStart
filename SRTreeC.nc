@@ -362,7 +362,6 @@ implementation
     event message_t* RoutingReceive.receive( message_t * msg , void * payload, uint8_t len)
     {
    	 error_t enqueueDone;
-   	 message_t tmp;
    	 uint16_t msource;
    	 
    	 msource =call RoutingAMPacket.source(msg);
@@ -387,11 +386,7 @@ implementation
    		 //return msg;
    	 //}
    	 
-   	 atomic{
-   	 memcpy(&tmp,msg,sizeof(message_t));
-   	 //tmp=*(message_t*)msg;
-   	 }
-   	 enqueueDone=call RoutingReceiveQueue.enqueue(tmp);
+   	 enqueueDone=call RoutingReceiveQueue.enqueue(*msg);
    	 if(enqueueDone == SUCCESS)
    	 {
 #ifdef PRINTFDBG_MODE
@@ -515,7 +510,6 @@ implementation
     
     task void receiveRoutingTask()
     {
-   	 message_t tmp;
    	 uint8_t len;
    	 message_t radioRoutingRecPkt;
    	 
