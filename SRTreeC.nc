@@ -726,7 +726,6 @@ implementation
 	task void receiveAggMinTask()
     {
 	AggregationMin * mpkt;
-   	message_t tmp;
    	uint16_t len;
    	message_t msg;
 
