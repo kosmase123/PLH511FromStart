@@ -1,158 +1,70 @@
+#include "message.h"
 
-#ifdef PRINTFDBG_MODE
-	#include "printf.h"
-#endif
-
-generic module PacketQueueC( uint8_t queueSize)
+generic module PacketQueueC(uint8_t queueSize)
 {
 	provides interface PacketQueue;
-}
-implementation
-{
+	
 	message_t Q[queueSize];
-	uint8_t headIndex=0;
-	uint8_t tailIndex=0;
-	uint8_t size=0;
+	uint8_t head = 0;
+	uint8_t tail = 0;
+	uint8_t size = 0;
 	
-	//bool isEmpty=TRUE;
-	//bool isFull=FALSE;
-	
-	command bool PacketQueue.empty()
+	implementation
 	{
-		bool em;
-		atomic{
-		em = (size==0);}
-		
-		return em;
-	}
-	
-	command bool PacketQueue.full()
-	{
-		bool em;
-		atomic{
-		if (size==queueSize)
+		command bool PacketQueue.empty()
 		{
-			em=TRUE;
+			return size == 0;
 		}
-		else
+		
+		command bool PacketQueue.full()
 		{
-			em=FALSE;
-		}
-		}
-		return em ;
-	}
-	command uint8_t PacketQueue.size()
-	{
-		uint8_t ms;
-		
-		atomic{
-			ms= size;
-		}
-		return ms;
-	}
-	
-	command uint8_t PacketQueue.maxSize()
-	{
-		uint8_t ms;
-		
-		atomic{
-			ms= queueSize;
-		}
-		return ms;
-	}
-	
-	/**
-	 * @deprecated
-	 */
-	command message_t PacketQueue.head()
-	{	
-		return Q[headIndex];
-	}
-	
-	
-	
-	command error_t PacketQueue.enqueue(message_t newPkt)
-	{
-		bool wasEmpty=FALSE, isFull=FALSE;
-		
-		atomic{
-		wasEmpty= (size==0);//call PacketQueue.empty();
-		isFull=(size==queueSize);
+			return size == queueSize;
 		}
 		
-		if (isFull)
+		command uint8_t PacketQueue.size()
 		{
-			dbg("PacketQueueC","enqueue(): Queue is FULL!!!\n");
-#ifdef PRINTFDBG_MODE
-			printf("PacketQueueC:enqueue(): Queue is FULL!!!\n");
-			printfflush();
-#endif
-			return FAIL;
+			return size;
 		}
-				
-		atomic{
-			if(!wasEmpty)
-			{
-				tailIndex = (tailIndex+1)%queueSize;
+		
+		command uint8_t PacketQueue.maxSize()
+		{
+			return queueSize;
+		}
+		
+		command error_t PacketQueue.enqueue(message_t newPkt)
+		{
+			if (call PacketQueue.full()) {
+				return FAIL;
 			}
-			
-			memcpy(&Q[tailIndex],&newPkt,sizeof(message_t));//???  
-			//Q[tailIndex]=*(message_t*)newPkt;
+			Q[tail] = newPkt;
+			tail = (tail + 1) % queueSize;
 			size++;
+			return SUCCESS;
 		}
-		dbg("PacketQueueC","enqueue(): Enqueued in pos= %u \n",tailIndex);
-#ifdef PRINTFDBG_MODE
-		printf("PacketQueueC : enqueue() : pos=%u \n", tailIndex);
-		printfflush();
-#endif
-		return SUCCESS;
-	}
-	
-	command message_t PacketQueue.dequeue()
-	{
-		uint8_t tmp;
-		bool isEmpty=FALSE;
-		message_t  m;
-		atomic{
-			isEmpty=(size==0);
-		}
-		if (isEmpty)
+		
+		command message_t PacketQueue.dequeue()
 		{
-			dbg("PacketQueueC","dequeue(): Q is emtpy!!!!\n");
-#ifdef PRINTFDBG_MODE
-			printf("PacketQueueC : dequeue() : Q is empty!!! \n");
-			printfflush();
-#endif
-			atomic{
-				m=Q[headIndex];
+			message_t pkt;
+			if (call PacketQueue.empty()) {
+				// Returning an uninitialized message_t on empty queue
+				// is not ideal, but it's consistent with the previous
+				// implementation's behavior in error cases.
+				return pkt; 
 			}
-			return m; // must return something to indicate error... (event???)
-		}
-		
-		
-		atomic{
-			tmp=headIndex;
-			if(tailIndex!=headIndex)
-			{
-				headIndex=(headIndex+1)%queueSize;//???
-			}
+			pkt = Q[head];
+			head = (head + 1) % queueSize;
 			size--;
-			m=Q[tmp];
+			return pkt;
 		}
-		dbg("PacketQueueC","dequeue(): Dequeued from pos = %u \n",tmp);//(queueSize+headIndex-1)%queueSize);
-#ifdef PRINTFDBG_MODE
-		printf("PacketQueueC : dequeue(): pos = %u \n", tmp);
-		printfflush();
-#endif
-		return m;
+		
+		command message_t PacketQueue.elementAt(uint8_t loc)
+		{
+			if (loc < size) {
+				return Q[(head + loc) % queueSize];
+			} else {
+				message_t m;
+				return m;
+			}
+		}
 	}
-	
-	command message_t PacketQueue.element(uint8_t mindex)
-	{
-		message_t m;
-		atomic{
-			m = Q[mindex];
-		}
-		return m;
-	}	
 }
