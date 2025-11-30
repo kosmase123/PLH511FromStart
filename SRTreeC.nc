@@ -376,15 +376,15 @@ implementation
    	 //call Leds.led1On();
    	 //call Led1Timer.startOneShot(TIMER_LEDS_MILLI);
    	 
-   	 //if(len!=sizeof(RoutingMsg))
-   	 //{
-   		 //dbg("SRTreeC","\t\tUnknown message received!!!\n");
-//#ifdef PRINTFDBG_MODE
-   		 //printf("\t\t Unknown message received!!!\n");
-   		 //printfflush();
-//#endif
-   		 //return msg;
-   	 //}
+   	 if(len!=sizeof(RoutingMsg))
+   	 {
+   		 dbg("SRTreeC","\t\tUnknown message received!!!\n");
+#ifdef PRINTFDBG_MODE
+   		 printf("\t\t Unknown message received!!!\n");
+   		 printfflush();
+#endif
+   		 return msg;
+   	 }
    	 
    	 enqueueDone=call RoutingReceiveQueue.enqueue(*msg);
    	 if(enqueueDone == SUCCESS)
@@ -694,6 +694,11 @@ implementation
    	 msource =call AggMinAMPacket.source(msg);
 
     dbg("ReceiveAggMin", "AggMin received (src=%u, len=%u)\n", msource, len);
+   	 
+   	 if (len != sizeof(AggregationMin)) {
+   		 dbg("ReceiveAggMin", "AggMin received with wrong length (len=%u)\n", len);
+   		 return msg;
+   	 }
    	 
    	 enqueueDone=call AggMinReceiveQueue.enqueue(*msg);
    	 if(enqueueDone == SUCCESS)
